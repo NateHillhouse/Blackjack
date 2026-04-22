@@ -1,9 +1,9 @@
-﻿namespace Classes;
+﻿namespace Cards;
 
-public readonly struct Cards(Suite suite, int number)
+public readonly struct Card(Suite suite, int number)
 {
     private readonly Suite CardSuite { get; } = suite;
-    public readonly Suite GetSuite => CardSuite;
+    public readonly Suite Suite => CardSuite;
     private readonly int Value { get; } = number;
     public readonly int CardValue => Value;
 
