@@ -21,21 +21,28 @@ public class GamePlay
         {
             playerHand.InGame = false;
             dealerHand.InGame = false;
-            PrintCards(playerHand, dealerHand);
+        
+            Console.WriteLine("------Welcome to Blackjack-----\n");
+            PrintCards(playerHand, "Player");
+            PrintCards(dealerHand, "Dealer");
         }
         
         while (playerHand.InGame || dealerHand.InGame)
         {
             Console.Clear();
-            PrintCards(playerHand, dealerHand);
+        
+            Console.WriteLine("------Welcome to Blackjack-----\n");
+            PrintCards(playerHand, "Player");
+            if (playerHand.InGame) Wait(400);
+            PrintCards(dealerHand, "Dealer");
             int playerValue = playerHand.Value;
             int dealerValue = dealerHand.Value;
 
             //<---------------------Players Turn----------------------->
             if (playerValue < 21 && playerHand.InGame && dealerHand.InGame == true)
             {
-                string choices = "What would you like to do? \n\t 1. Hit \n\t 2. Fold \n\t 3. View Cards\n";
-                int number = GetInt(choices, 3);
+                string choices = "What would you like to do? \n\t 1. Hit \n\t 2. Fold\n";
+                int number = GetInt(choices, 2);
 
                 switch (number) 
                 {
@@ -44,9 +51,6 @@ public class GamePlay
                         break;
                     case 2:
                         playerHand.InGame = false;
-                        break;
-                    case 3: 
-                        playerHand.PrintCards();
                         break;
                 };
             }
@@ -91,8 +95,7 @@ public class GamePlay
             {
                 //Console.Write("Press any key to continue"); // - The dealer may still bust! (The dealer must get above 17) 
                 //Console.ReadKey(true);
-                DateTime time = DateTime.Now;
-                while ((DateTime.Now - time).TotalMilliseconds < 600);
+                Wait(600);
             }
             
         }
@@ -108,6 +111,7 @@ public class GamePlay
         else if (dealerHand.Value <= 21) Console.WriteLine("The dealer won.");
         else Console.WriteLine("You won! ");
         Console.WriteLine($"\tYour score: {playerHand.Value} \n\tDealer score: {dealerHand.Value}");
+        Console.WriteLine($"{Console.BufferHeight}, {Console.BufferWidth}");
 
 
         switch (GetInt("\nPlay again? \n\t1. Yes \n\t2. No\n", 2))
@@ -120,21 +124,19 @@ public class GamePlay
         }
     }
 
-    public static void PrintCards(Hand player, Hand dealer)
+    public static void Wait(int milliseconds) //Waits for a set period of time
     {
-        
-        Console.WriteLine("------Welcome to Blackjack-----\n");
+        DateTime time = DateTime.Now;
+        while ((DateTime.Now - time).TotalMilliseconds < milliseconds);
+    }
 
-        Console.WriteLine(player.BustedMessage);
-        Console.Write($"Your Cards:\n\t");
-        player.PrintCards();
-        Console.WriteLine($"\tScore: {player.Value}");
+    public static void PrintCards(Hand person, string name)
+    {
 
-        Console.WriteLine(dealer.BustedMessage);
-        Console.Write($"Dealers Cards:\n\t");
-        dealer.PrintCards();
-        Console.WriteLine($"\tDealer Score: {dealer.Value}");
-        Console.WriteLine();
+        Console.WriteLine(person.BustedMessage);
+        Console.Write($"{name} Cards:\n\t");
+        person.PrintCards();
+        Console.WriteLine($"\tScore: {person.Value}");
     }
 
     public static bool DecideDealerHit(int dealerValue, int playerValue, bool playerOut)

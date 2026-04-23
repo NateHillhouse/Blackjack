@@ -108,8 +108,9 @@ public class Hand : ICards
         return value;
     }
 
-    public void PrintCards(int cardHeight = 5)
+    public void PrintCards()
     {
+        int cardHeight = Console.BufferHeight/6;
         (int x, int y) CursorLocation = Console.GetCursorPosition();
         foreach (Card card in Cards)
         {
@@ -172,18 +173,19 @@ public class Hand : ICards
                 Console.Write("|");
             }
             
-            int valueShift = shift/5;
-
-            Console.SetCursorPosition(location.x + valueShift, location.y + valueShift);
+            int yValueShift = shift/5;
+            int xValueShift = shift/4;
+            Console.SetCursorPosition(location.x + xValueShift, location.y + yValueShift);
             Console.Write(cardValue);
-            Console.SetCursorPosition(location.x + valueShift, location.y + valueShift+1);
+            Console.SetCursorPosition(location.x + xValueShift, location.y + yValueShift+1);
             Console.Write(suite);
 
-            Console.SetCursorPosition(location.x + cardHeight - valueShift, location.y + cardHeight - valueShift);
-            Console.Write(cardValue);
-            Console.SetCursorPosition(location.x + cardHeight - valueShift, location.y + cardHeight - valueShift-1);
+            Console.SetCursorPosition(location.x + cardHeight - xValueShift, location.y + cardHeight - yValueShift-1);
             Console.Write(suite);
-
+            Console.SetCursorPosition(location.x + cardHeight - xValueShift, location.y + cardHeight - yValueShift);
+            if (cardValue == "10") Console.SetCursorPosition(location.x + cardHeight - xValueShift-1, location.y + cardHeight - yValueShift);
+            Console.Write(cardValue);
+            
         Console.SetCursorPosition(location.x + shift + 1, location.y);
 
     }
