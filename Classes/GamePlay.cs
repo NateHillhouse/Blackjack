@@ -46,10 +46,12 @@ public class GamePlay
                         break;
                     case 2:
                         playerHand.InGame = false;
+                        playerHand.BustedMessage = "You folded. ";
                         break;
                 };
             }
-            else if (playerHand.Value > 21) 
+            
+            if (playerHand.Value > 21) 
             {
                 playerHand.InGame = false;
                 playerHand.BustedMessage = "You have busted. ";
@@ -59,7 +61,6 @@ public class GamePlay
                 playerHand.InGame = false;
                 playerHand.BustedMessage = "You have blackjack! ";
             }
-            else playerHand.InGame = false;
 
             if (dealerHand.InGame) PrintCards(playerHand, dealerHand);
 
@@ -153,7 +154,7 @@ public class GamePlay
     public static bool DecideDealerHit(int dealerValue, int playerValue, bool playerOut)
     {
         if (dealerValue <= 17) return true; //The dealer is required to hit at 17 or below
-        else if (dealerValue > 17 && playerOut) return true;
+        else if (dealerValue > 17 && playerValue > 21) return false;
         else if (playerOut && dealerValue < playerValue) return true; //Hit if the player is out and higher than the dealer; otherwise the dealer loses
 
 
