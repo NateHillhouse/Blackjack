@@ -23,18 +23,12 @@ public class GamePlay
             dealerHand.InGame = false;
         
             Console.WriteLine("------Welcome to Blackjack-----\n");
-            PrintCards(playerHand, "Player");
-            PrintCards(dealerHand, "Dealer");
         }
         
         while (playerHand.InGame || dealerHand.InGame)
         {
-            Console.Clear();
-        
-            Console.WriteLine("------Welcome to Blackjack-----\n");
-            PrintCards(playerHand, "Player");
-            if (playerHand.InGame) Wait(400);
-            PrintCards(dealerHand, "Dealer");
+            PrintCards(playerHand, dealerHand);
+            
             int playerValue = playerHand.Value;
             int dealerValue = dealerHand.Value;
 
@@ -65,7 +59,12 @@ public class GamePlay
                 playerHand.BustedMessage = "You have blackjack! ";
             }
             else playerHand.InGame = false;
+
+            PrintCards(playerHand, dealerHand);
+
             //<---------------------Dealers Turn----------------------->
+            
+            
             if (playerValue <= 21 && dealerValue < 21 && dealerHand.InGame) //If the player hasn't busted and the dealer doesn't have blackjack or has busted
             {
                 if (DecideDealerHit(dealerValue, playerValue, !playerHand.InGame)) 
@@ -88,7 +87,6 @@ public class GamePlay
                 dealerHand.BustedMessage = "The dealer has blackjack!";
             } 
             else if (dealerValue > 17) dealerHand.InGame = false;
-
             else deck.DealCard(dealerHand);
 
             if (!playerHand.InGame && dealerHand.InGame)
@@ -97,6 +95,10 @@ public class GamePlay
                 //Console.ReadKey(true);
                 Wait(600);
             }
+            else if (playerHand.InGame) Wait(400);
+            
+            if (dealerHand.InGame && dealerHand.Value > 21) dealerHand.InGame = false;
+            PrintCards(playerHand, dealerHand);
             
         }
         Console.WriteLine();
@@ -110,8 +112,7 @@ public class GamePlay
         else if (playerHand.Value > 21) Console.WriteLine("You busted, the dealer won. ");
         else if (dealerHand.Value <= 21) Console.WriteLine("The dealer won.");
         else Console.WriteLine("You won! ");
-        Console.WriteLine($"\tYour score: {playerHand.Value} \n\tDealer score: {dealerHand.Value}");
-        Console.WriteLine($"{Console.BufferHeight}, {Console.BufferWidth}");
+        //Console.WriteLine($"\tYour score: {playerHand.Value} \n\tDealer score: {dealerHand.Value}");
 
 
         switch (GetInt("\nPlay again? \n\t1. Yes \n\t2. No\n", 2))
@@ -130,13 +131,20 @@ public class GamePlay
         while ((DateTime.Now - time).TotalMilliseconds < milliseconds);
     }
 
-    public static void PrintCards(Hand person, string name)
+    public static void PrintCards(Hand player, Hand dealer)
     {
+        Console.Clear();
+        Console.WriteLine("------Welcome to Blackjack-----\n");
 
-        Console.WriteLine(person.BustedMessage);
-        Console.Write($"{name} Cards:\n\t");
-        person.PrintCards();
-        Console.WriteLine($"\tScore: {person.Value}");
+        Console.WriteLine(player.BustedMessage);
+        Console.Write($"Player Cards:\n\t");
+        player.PrintCards();
+        Console.WriteLine($"\tScore: {player.Value}");
+
+        Console.WriteLine(dealer.BustedMessage);
+        Console.Write($"Dealer Cards:\n\t");
+        dealer.PrintCards();
+        Console.WriteLine($"\tScore: {dealer.Value}");
     }
 
     public static bool DecideDealerHit(int dealerValue, int playerValue, bool playerOut)
