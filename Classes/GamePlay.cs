@@ -1,4 +1,5 @@
 global using Cards;
+using System.Reflection.Metadata;
 using System.Runtime.InteropServices;
 
 namespace Classes;
@@ -9,35 +10,37 @@ public class GamePlay
     {
         //BlackJack
         Console.Clear();
-        Console.WriteLine("------Welcome to Blackjack-----");
-        Console.WriteLine();
-        Console.WriteLine("Lets get started!\n\n");
 
         Deck deck = new();
         
         Hand playerHand = new(deck.DealCard());
-        deck.DealCard(ref playerHand);
-        Hand DealerHand = new(deck.DealCard());
-        string playerOutMessage = "";
-
-        while (playerHand.InGame || DealerHand.InGame)
+        deck.DealCard(playerHand);
+        Hand dealerHand = new(deck.DealCard());
+        
+        if (playerHand.Value == 21) //Instant win
+        {
+            playerHand.InGame = false;
+            dealerHand.InGame = false;
+            PrintCards(playerHand, dealerHand);
+        }
+        
+        while (playerHand.InGame || dealerHand.InGame)
         {
             Console.Clear();
-            PrintCards(playerHand, DealerHand, playerOutMessage);
+            PrintCards(playerHand, dealerHand);
             int playerValue = playerHand.Value;
-            int dealerValue = DealerHand.Value;
+            int dealerValue = dealerHand.Value;
 
             //<---------------------Players Turn----------------------->
-            if (playerValue < 21 && playerHand.InGame)
+            if (playerValue < 21 && playerHand.InGame && dealerHand.InGame == true)
             {
                 string choices = "What would you like to do? \n\t 1. Hit \n\t 2. Fold \n\t 3. View Cards\n";
-                int number = 0;
-                number = GetInt(choices, 3);
+                int number = GetInt(choices, 3);
 
                 switch (number) 
                 {
                     case 1:
-                        deck.DealCard(ref playerHand);
+                        deck.DealCard(playerHand);
                         break;
                     case 2:
                         playerHand.InGame = false;
@@ -50,73 +53,102 @@ public class GamePlay
             else if (playerHand.Value > 21) 
             {
                 playerHand.InGame = false;
-                playerOutMessage = "You have busted. ";
+                playerHand.BustedMessage = "You have busted. ";
             }
             else if (playerHand.Value == 21)
             {
                 playerHand.InGame = false;
-                playerOutMessage = "You have blackjack! ";
+                playerHand.BustedMessage = "You have blackjack! ";
             }
+            else playerHand.InGame = false;
             //<---------------------Dealers Turn----------------------->
-            if (playerValue <= 21 && dealerValue < 21 && DealerHand.InGame) //If the player hasn't busted and the dealer doesn't have blackjack or has busted
+            if (playerValue <= 21 && dealerValue < 21 && dealerHand.InGame) //If the player hasn't busted and the dealer doesn't have blackjack or has busted
             {
-                if (DecideDeal(dealerValue, playerValue)) deck.DealCard(ref DealerHand);
+                if (DecideDealerHit(dealerValue, playerValue, !playerHand.InGame)) 
+                    deck.DealCard(dealerHand);
                 else if (playerHand.InGame)
                 {
-                    DealerHand.InGame = false;
-                    Console.WriteLine("The dealer stands");
+                    dealerHand.InGame = false;
+                    dealerHand.BustedMessage = "The dealer stands";
                 }
-                else DealerHand.InGame = false;
+                else dealerHand.InGame = false;
             }
-            else if (DealerHand.InGame && dealerValue > 21) 
+            else if (dealerHand.InGame && dealerValue > 21) 
             {
-                DealerHand.InGame = false;
-                Console.WriteLine("The dealer has busted. ");
+                dealerHand.InGame = false;
+                dealerHand.BustedMessage = "The dealer has busted. ";
             } 
-            else if (DealerHand.InGame && dealerValue == 21) 
+            else if (dealerHand.InGame && dealerValue == 21) 
             {
-                DealerHand.InGame = false;
-                Console.WriteLine("The dealer has blackjack!");
+                dealerHand.InGame = false;
+                dealerHand.BustedMessage = "The dealer has blackjack!";
             } 
+            else if (dealerValue > 17) dealerHand.InGame = false;
+
+            else deck.DealCard(dealerHand);
+
+            if (!playerHand.InGame && dealerHand.InGame)
+            {
+                //Console.Write("Press any key to continue"); // - The dealer may still bust! (The dealer must get above 17) 
+                //Console.ReadKey(true);
+                DateTime time = DateTime.Now;
+                while ((DateTime.Now - time).TotalMilliseconds < 600);
+            }
             
         }
         Console.WriteLine();
 
-        if (playerHand.Value == DealerHand.Value || (playerHand.Value > 21 && DealerHand.Value > 21)) Console.WriteLine("Its a push!");
+        if (playerHand.Value == dealerHand.Value || (playerHand.Value > 21 && dealerHand.Value > 21)) Console.WriteLine("Its a push!");
         else if (playerHand.Value == 21) Console.WriteLine("You got blackjack!");
-        else if (DealerHand.Value == 21) Console.WriteLine("The dealer got blackjack!");
-        else if (playerHand.Value <= 21 && playerHand.Value > DealerHand.Value) Console.WriteLine("You won!");
+        else if (dealerHand.Value == 21) Console.WriteLine("The dealer got blackjack!");
+        else if (playerHand.Value <= 21 && playerHand.Value > dealerHand.Value) Console.WriteLine("You won!");
         else if (playerHand.Value > 21) Console.WriteLine("You busted, the dealer won. ");
-        else if (DealerHand.Value <= 21) Console.WriteLine("The dealer won.");
-        Console.WriteLine($"\n\tYour score: {playerHand.Value} \n\tDealer score: {DealerHand.Value}");
+        else if (dealerHand.Value <= 21) Console.WriteLine("The dealer won.");
+        else Console.WriteLine("You won! ");
+        Console.WriteLine($"\tYour score: {playerHand.Value} \n\tDealer score: {dealerHand.Value}");
+
+
+        switch (GetInt("\nPlay again? \n\t1. Yes \n\t2. No\n", 2))
+        {
+            case 1: 
+                Main();
+                break;
+            case 2:
+                break;
+        }
     }
 
-    public static void PrintCards(Hand player, Hand dealer, string message = "")
+    public static void PrintCards(Hand player, Hand dealer)
     {
-        if (player.InGame == false) Console.WriteLine(message);
+        
+        Console.WriteLine("------Welcome to Blackjack-----\n");
+
+        Console.WriteLine(player.BustedMessage);
         Console.Write($"Your Cards:\n\t");
         player.PrintCards();
         Console.WriteLine($"\tScore: {player.Value}");
 
+        Console.WriteLine(dealer.BustedMessage);
         Console.Write($"\nDealers Cards:\n\t");
         dealer.PrintCards();
         Console.WriteLine($"\tDealer Score: {dealer.Value}");
         Console.WriteLine();
     }
 
-    public static bool DecideDeal(int dealerValue, int playerValue)
+    public static bool DecideDealerHit(int dealerValue, int playerValue, bool playerOut)
     {
-        if (dealerValue <= 17) return true;
+        if (dealerValue <= 17) return true; //The dealer is required to hit at 17 or below
+        else if (playerOut && dealerValue < playerValue) return true; //Hit if the player is out and higher than the dealer; otherwise the dealer loses
 
-        double dealerFactor = ((21 - dealerValue) / 10) ^ 2;
-        double comparisonFactor = (playerValue - dealerFactor) / 10;
-        double unclampedProbability = dealerFactor + (dealerFactor * comparisonFactor);
-        double probability = Math.Clamp(unclampedProbability, 0.0, 1.0);
+        double dealerFactor = ((21 - dealerValue) / 10) ^ 2; //Factor the dealers closeness to 21
+        double comparisonFactor = (playerValue - dealerFactor) / 10; //Factor in the value distance to the player
+        double unclampedProbability = dealerFactor + (dealerFactor * comparisonFactor); //Put the factors together to determine probability
+        double probability = Math.Clamp(unclampedProbability, 0.0, 1.0); //Clamp the value so it doesn't go lower than 0 or higher than 1
 
         Random rand = new();
         
         double hit = rand.NextDouble();
-        if (hit >= probability) return true;
+        if (hit >= probability) return true; //Decide if the dealer actually hits or misses
         else return false;
     }
     public static int GetInt(string message, int? size = null)
@@ -127,7 +159,7 @@ public class GamePlay
         
         while (input == null || !Int32.TryParse(input, out num) || num > size || num < 0) 
         {
-            if (num > size || num < 0) return GetInt($"Please chose a number between 0 and {size}: ");
+            if (num > size || num < 0) return GetInt($"Please chose a number between 1 and {size}: ");
             return GetInt("Please enter a valid number: ", size);
         }
         return num;

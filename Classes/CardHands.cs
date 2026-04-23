@@ -44,7 +44,7 @@ public class Deck
     {
         return CardStack.Pop();
     }
-    public void DealCard(ref Hand hand)
+    public void DealCard(Hand hand)
     {
         hand.AddCard(CardStack.Pop());
     }
@@ -57,6 +57,7 @@ public class Hand
     public List<Card> Cards => CardStack; //Reads CardStack but doesn't edit; needs to be done through AddCard() 
     public int Value => CalculateValue();
     public bool InGame { get; set; } = true;
+    public string BustedMessage = "";
 
     //<---------------------------- Initialization ----------------------------->
     public Hand(Card card) => AddCard(card); //Initialize the deck with one card
@@ -65,15 +66,17 @@ public class Hand
     //<------------------------------------------------------------------------->
 
 
-    public void AddCard(Card cardToAdd)
+    public void AddCard(params Card[] cardsToAdd)
     {
-        CardStack.Add(cardToAdd);
+        foreach (Card card in cardsToAdd) CardStack.Add(card);
     }
+
 
     int CalculateValue()
     {
         int value = 0;
         int numberAces = 0;
+
         foreach (Card card in CardStack)
         {
             if (card.CardValue == 1) 
@@ -85,7 +88,11 @@ public class Hand
             else value += card.CardValue;
         }
 
-        while (value > 21 && numberAces > 0) value -= 10;
+        while (value > 21 && numberAces > 0) 
+        {
+            value -= 10;
+            numberAces --;
+        }
         return value;
     }
 
@@ -102,7 +109,17 @@ public class Hand
                 Suite.Hearts => "♡",
                 _ => ""
             };
-            Console.Write($"{card.CardValue}{printSuite}   ");
+            
+            string val = card.CardValue switch
+            {
+                1 => "A",
+                11 => "J",
+                12 => "Q",
+                13 => "K",
+                _ => card.CardValue.ToString()
+            };
+
+            Console.Write($"{val}{printSuite}   ");
         }
         Console.WriteLine();
     }

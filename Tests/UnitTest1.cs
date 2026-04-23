@@ -29,9 +29,28 @@ public class Tests
         Assert.That(hand.Cards.Count == 0);
         Assert.That(new Hand(new Card(Suite.Spades, 1)).Cards.Count == 1); //Initializes a hand with one card and checks if the count is correct
 
-        CardDeck.DealCard(ref hand);
+        CardDeck.DealCard(hand);
         int count = hand.Cards.Count;
-        CardDeck.DealCard(ref hand);
+        CardDeck.DealCard(hand);
         Assert.That(hand.Cards.Count != count);
+    }
+
+    [Test]
+    public void CardValues()
+    {
+        Hand hand = new();
+        Card[] cards =
+        {
+            new(Suite.Spades, 1),
+            new(Suite.Spades, 1),
+            new(Suite.Spades, 1),
+            new(Suite.Spades, 10),
+            new(Suite.Spades, 10)
+        };
+        hand.AddCard(cards);
+
+        int value = 0;
+        foreach (Card c in cards) value += c.CardValue;
+        Assert.That(hand.Value == value);
     }
 }
