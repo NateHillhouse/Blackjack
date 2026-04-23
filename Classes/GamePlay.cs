@@ -98,10 +98,12 @@ public class GamePlay
         }
         Console.WriteLine();
 
+
         if (playerHand.Value == dealerHand.Value || (playerHand.Value > 21 && dealerHand.Value > 21)) Console.WriteLine("Its a push!");
         else if (playerHand.Value == 21) Console.WriteLine("You got blackjack!");
         else if (dealerHand.Value == 21) Console.WriteLine("The dealer got blackjack!");
         else if (playerHand.Value <= 21 && playerHand.Value > dealerHand.Value) Console.WriteLine("You won!");
+        else if (dealerHand.Value > 21) Console.WriteLine("The dealer busted, You won! "); //If the dealer busts, the player wins regardless of their card total (https://officialgamerules.org/game-rules/blackjack/)
         else if (playerHand.Value > 21) Console.WriteLine("You busted, the dealer won. ");
         else if (dealerHand.Value <= 21) Console.WriteLine("The dealer won.");
         else Console.WriteLine("You won! ");
@@ -129,7 +131,7 @@ public class GamePlay
         Console.WriteLine($"\tScore: {player.Value}");
 
         Console.WriteLine(dealer.BustedMessage);
-        Console.Write($"\nDealers Cards:\n\t");
+        Console.Write($"Dealers Cards:\n\t");
         dealer.PrintCards();
         Console.WriteLine($"\tDealer Score: {dealer.Value}");
         Console.WriteLine();

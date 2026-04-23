@@ -53,4 +53,5 @@ public class Tests
         foreach (Card c in cards) value += c.CardValue;
         Assert.That(hand.Value == value);
     }
+
 }
