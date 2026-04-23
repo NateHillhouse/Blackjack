@@ -29,9 +29,9 @@ public class Tests
         Assert.That(hand.Cards.Count == 0);
         Assert.That(new Hand(new Card(Suite.Spades, 1)).Cards.Count == 1); //Initializes a hand with one card and checks if the count is correct
 
-        CardDeck.DealCard(hand);
+        CardDeck.DealCard(ref hand);
         int count = hand.Cards.Count;
-        CardDeck.DealCard(hand);
+        CardDeck.DealCard(ref hand);
         Assert.That(hand.Cards.Count != count);
     }
 }

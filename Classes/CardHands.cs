@@ -44,7 +44,7 @@ public class Deck
     {
         return CardStack.Pop();
     }
-    public void DealCard(Hand hand)
+    public void DealCard(ref Hand hand)
     {
         hand.AddCard(CardStack.Pop());
     }
@@ -55,7 +55,8 @@ public class Hand
 {
     List<Card> CardStack { get; set; } = []; //Keeps the hand from being edited unexpectedly
     public List<Card> Cards => CardStack; //Reads CardStack but doesn't edit; needs to be done through AddCard() 
-    public int Value => CheckForAce();
+    public int Value => CalculateValue();
+    public bool InGame { get; set; } = true;
 
     //<---------------------------- Initialization ----------------------------->
     public Hand(Card card) => AddCard(card); //Initialize the deck with one card
@@ -69,20 +70,27 @@ public class Hand
         CardStack.Add(cardToAdd);
     }
 
-    int CheckForAce()
+    int CalculateValue()
     {
-        int value = CardStack.Sum(c => c.CardValue);
-        if (value <= 21) return value;
-        
+        int value = 0;
         int numberAces = 0;
         foreach (Card card in CardStack)
-            if (card.CardValue == 1) numberAces ++;
-        return value - (11 * numberAces);
+        {
+            if (card.CardValue == 1) 
+            {
+                value += 11;
+                numberAces ++;
+            }
+            else if (card.CardValue > 10) value += 10;
+            else value += card.CardValue;
+        }
+
+        while (value > 21 && numberAces > 0) value -= 10;
+        return value;
     }
 
     public void PrintCards()
     {
-        Console.Write("Your hand: ");
         foreach (Card card in Cards)
         {
             string printSuite = "";
