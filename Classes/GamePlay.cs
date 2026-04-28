@@ -27,7 +27,7 @@ public class GamePlay
             PrintCards(playerHand, dealerHand);
             }
         
-        while (playerHand.InGame || dealerHand.InGame)
+        while (dealerHand.InGame) //If the dealer is out but the player is in the player automatically wins
         {
             PrintCards(playerHand, dealerHand);
             
@@ -63,6 +63,7 @@ public class GamePlay
             }
 
             if (dealerHand.InGame) PrintCards(playerHand, dealerHand);
+
 
             //<---------------------Dealers Turn----------------------->
             
